@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-api-deployment
+  labels: # Optional, but it's a good practice
+    app: catalog-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels: # To match a deployment with his pods
+      app: catalog-api
+  template: # POD configuration
+    metadata:
+      labels: # Required to identify the duplicated pods (PODs has unique name, but they share the same label)
+        app: catalog-api
+    spec:
+      containers: # POD containers configuration
+        - name: catalog-container
+          image: imadberkati/catalog-image:dev-0.2
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: CATALOG_DB_USERAME
+              valueFrom:
+                secretKeyRef:
+                  name: catalog-secret
+                  key: postgres-user
+            - name: CATALOG_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: catalog-secret
+                  key: postgres-password
+            - name: CATALOG_DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: catalog-config-map
+                  key: postgres-url
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-service
+spec:
+  type: NodePort # TODO Add comment
+  selector: # Select pods to forward the request to
+    app: catalog-api
+  ports:
+    - protocol: TCP
+      port: 8080 # Service Port (to keep it simple we use the same port as container)
+      targetPort: 8080 # POD port where the request will be forwarded to (should match the container port)
+      nodePort: 30100

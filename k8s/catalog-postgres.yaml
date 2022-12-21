@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-postgres-deployment
+  labels: # Optional, but it's a good practice
+    app: catalog-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels: # To match a deployment with his pods
+      app: catalog-postgres
+  template: # POD configuration
+    metadata:
+      labels: # Required to identify the duplicated pods (PODs has unique name, but they share the same label)
+        app: catalog-postgres
+    spec:
+      containers: # POD containers configuration
+        - name: postgres-container
+          image: postgres:15-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: catalog-secret
+                  key: postgres-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: catalog-secret
+                  key: postgres-password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  selector: # Select pods to forward the request to
+    app: catalog-postgres
+  ports:
+    - protocol: TCP
+      port: 5432 # Service Port (to keep it simple we use the same port as container)
+      targetPort: 5432 # POD port where the request will be forwarded to (should match the container port)

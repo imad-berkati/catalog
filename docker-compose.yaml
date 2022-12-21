@@ -1,0 +1,24 @@
+version: '3.1'
+services:
+  catalog-api:
+    image: catalog-image:dev-0.2
+    ports:
+      - "8081:8080"
+    depends_on:
+      - catalog-postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://catalog-postgres:5432/catalog-db
+      - SPRING_DATASOURCE_USERNAME=postgres-username
+      - SPRING_DATASOURCE_PASSWORD=postgres-password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
+  catalog-postgres:
+    image: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - /Users/imadberkati/Desktop/ecommerce/volumes/catalog:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres-password
+      - POSTGRES_USER=postgres-username
+      - POSTGRES_DB=catalog-db
