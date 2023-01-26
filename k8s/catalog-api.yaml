@@ -5,7 +5,7 @@ metadata:
   labels: # Optional, but it's a good practice
     app: catalog-api
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels: # To match a deployment with his pods
       app: catalog-api
@@ -16,7 +16,7 @@ spec:
     spec:
       containers: # POD containers configuration
         - name: catalog-container
-          image: imadberkati/catalog-image:dev-0.2
+          image: docker.io/imadberkati/catalog-api:AZERTY123
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

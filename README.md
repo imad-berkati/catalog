@@ -7,21 +7,32 @@
 * config-map.yaml
 * secret.yaml
 
-#### Docker configuration
+#### Maven/JIB configuration
 
-* Dockerfile
+* Maven settings.xml
+
+##### Add docker registry, username and password in maven settings.xml
+
+    <settings>
+        ...
+        <servers>
+            ...
+            <server>
+                <id>MY_REGISTRY</id>
+                <username>MY_USERNAME</username>
+                <password>{MY_SECRET}</password>
+            </server>
+        </servers>
+    </settings>
 
 ##### start Minikube and check status
 
     minikube start --driver docker 
     minikube status
 
-##### Create catalog api docker image
+##### Run Maven / jib build command to create 
 
-    mvn clean install
-    docker build -t catalog-image:dev-0.2 . 
-    docker tag catalog-image:dev-0.2 imadberkati/catalog-image:dev-0.2
-    docker push imadberkati/catalog-image:dev-0.2
+    mvn compile jib:build -Dimage=docker.io/imadberkati/catalog-api:{tag}
 
 ##### Run postgres and catalog-image:dev-0.2 pods
 
@@ -75,4 +86,4 @@ If you can't access the NodePort service webapp with `MinikubeIP:NodePort`, exec
 
 #### Links
 * postgres image on Docker Hub: https://hub.docker.com/_/postgres
-* catalog api image on Docker Hub: https://hub.docker.com/repository/docker/imadberkati/catalog-image
+* catalog api image on Docker Hub: https://hub.docker.com/repository/docker/imadberkati/catalog-api/general
